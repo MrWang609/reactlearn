@@ -19,37 +19,46 @@
         const countState = {
             count: 5
         };
-        const changeState = (action) => {
+        const changeState = (state, action) => {
+            if(!state){
+                state=countState
+            }
             switch (action.type) {
                 case 'jia':
-                    countState.count += action.n
-                    break;
+                    return {
+                        ...state,
+                        count: state.count + action.n
+                    };
                 case 'jian':
-                    countState.count -= action.n
-                    break;
+                    return {
+                        ...state,
+                        count: state.count - action.n
+                    };
                 default:
-                    break;
+                    return state;
             }
         };
 
-        const createStore=(state,changeState)=>{
-            const getState=()=>state;
-            const listeners=[];
-            const subscribe=(listener)=>listeners.push(listener);
-            const dispatch=(action)=>{
-                changeState(action)
-                listeners.forEach(listener=>listener())
+        const createStore = (changeState) => {
+            let state=null;
+            const getState = () => state;
+            const listeners = [];
+            const subscribe = (listener) => listeners.push(listener);
+            const dispatch = (action) => {
+                state=changeState(state, action)
+                listeners.forEach(listener => listener())
             }
+            dispatch({})
             return {
                 getState,
                 dispatch,
                 subscribe
             }
         };
-        const store=createStore(countState,changeState);
+        const store = createStore(changeState);
 
-        const renderCount=()=>{
-            countDisplay.innerHTML=store.getState().count
+        const renderCount = () => {
+            countDisplay.innerHTML = store.getState().count
         };
         renderCount();
         store.subscribe(renderCount);
